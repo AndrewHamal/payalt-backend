@@ -86,7 +86,7 @@ exports = module.exports = function (req, res) {
                             username: username,
                             emailaddress: email,
                             usertype: "Shopper",
-                            password_set_link: process.env.SERVER_URL+"/password_setup/"+inserted_id
+                            password_set_link: process.env.SERVER_URL+"password_setup/"+inserted_id
                         }
 
                         var email_content = ejs.renderFile('views/emails/user_created.ejs',pass_template);

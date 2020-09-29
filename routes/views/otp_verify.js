@@ -67,7 +67,7 @@ exports = module.exports = function (req, res) {
                                 emailaddress: user_email,
                                 phone: phone,
                                 usertype: "Shopper",
-                                login_link: process.env.SERVER_URL+"/login"
+                                login_link: process.env.SERVER_URL+"login"
                             }
 
                             var email_content = ejs.renderFile('views/emails/welcome_shopper.ejs',pass_template);

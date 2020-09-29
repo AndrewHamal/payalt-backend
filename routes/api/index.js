@@ -103,7 +103,7 @@ exports = module.exports = function (req, res, next) {
             siteurl: process.env.SERVER_URL,
             sitename:process.env.SITE_NAME,
             name: "Test User",
-            password_reset_link: process.env.SERVER_URL+"/password_reset/123456"
+            password_reset_link: process.env.SERVER_URL+"password_reset/123456"
         }
         
         var email_content = ejs.renderFile('views/emails/password_reset.ejs',pass_template);
@@ -196,7 +196,7 @@ exports = module.exports = function (req, res, next) {
                     siteurl: process.env.SERVER_URL,
                     sitename:process.env.SITE_NAME,
                     name: name,
-                    password_reset_link: process.env.SERVER_URL+"/password_reset/"+password_reset_code
+                    password_reset_link: process.env.SERVER_URL+"password_reset/"+password_reset_code
                 }
                 
                 var email_content = ejs.renderFile('views/emails/password_reset.ejs',pass_template);
@@ -985,7 +985,7 @@ exports = module.exports = function (req, res, next) {
                             emailaddress: email,
                             phone: phone,
                             usertype: "Shopper",
-                            login_link: process.env.SERVER_URL+"/login"
+                            login_link: process.env.SERVER_URL+"login"
                         }
 
                         var email_content = ejs.renderFile('views/emails/welcome_shopper.ejs',pass_template);
