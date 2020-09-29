@@ -3971,7 +3971,7 @@ exports = module.exports = function (req, res, next) {
         var shopper_id = req.body.logged_user_id;
         var condition = {shopper_id: ObjectId(shopper_id), status:"completed"};
 
-        dbo.collection("transaction").find(condition, {"sort": ['_id', 'desc']}).skip(0).limit(5).toArray(function (err, result) {
+        dbo.collection("transaction").find(condition).sort({'_id': -1}).skip(0).limit(5).toArray(function (err, result) {
             var send_contents = '';
             if (!err){
                 if(result.length > 0){
