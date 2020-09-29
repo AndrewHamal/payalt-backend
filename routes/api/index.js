@@ -66,6 +66,67 @@ exports = module.exports = function (req, res, next) {
         return result;
     }
 
+    if (action == "test_mail") {
+        var nodemailer = require('nodemailer');
+        var mg = require('nodemailer-mailgun-transport');
+        var sblue = require('nodemailer-sendinblue-transport');
+        var ejs = require("ejs");
+
+        if(process.env.MAIL_PROVIDER == 'SENDINBLUE'){
+            var transporter = nodemailer.createTransport(sblue({
+                apiKey: process.env.SBLUE_APIKEY,
+                apiUrl: process.env.SBLUE_DOMAIN
+            }));
+        } else if(process.env.MAIL_PROVIDER == 'MAILGUN'){
+            var transporter = nodemailer.createTransport(mg({
+                service:  'Mailgun',
+                auth: {
+                    api_key: process.env.MAILGUN_APIKEY,
+                    domain: process.env.MAILGUN_DOMAIN
+                },
+                proxy: process.env.PROXY
+            }));
+        } else {
+            var transporter = nodemailer.createTransport({
+                host: process.env.GMAIL_HOST,
+                port: process.env.GMAIL_PORT,
+                secure: true, // use TLS
+                auth: {
+                  user: process.env.GMAIL_USERNAME,
+                  pass: process.env.GMAIL_PASSWORD
+                },
+                proxy: process.env.PROXY
+            });
+        }
+
+        var pass_template = {
+            siteurl: process.env.SERVER_URL,
+            sitename:process.env.SITE_NAME,
+            name: "Test User",
+            password_reset_link: process.env.SERVER_URL+"/password_reset/123456"
+        }
+        
+        var email_content = ejs.renderFile('views/emails/password_reset.ejs',pass_template);
+        email_content.then(function (result_content) {
+            var options = {
+                from: {name: process.env.SITE_NAME, address: process.env.ADMIN_EMAIL},
+                to: "ed-developer@edsoftwaredevelopment.com",
+                subject: 'Password Reset - '+process.env.SITE_NAME,
+                html: result_content,
+                text: '',
+                'o:tracking': 'no','o:tracking-clicks': 'no','o:tracking-opens': 'no'
+            };
+            transporter.sendMail(options, function (error, info) {
+                if (error) {
+                    console.log(error);
+                    return res.send({"msg":"error","error_msg": "Reset Password email sending failed."});
+                }
+                else {
+                    return res.send({"msg":"success","succ_msg" : "Email with password reset link sent successfully."});
+                }
+            });
+        });
+    }
     if (action == "update_profile") {
         if (req.body.update_profile == '1') {
             var firstname = req.body.firstname;
@@ -108,6 +169,15 @@ exports = module.exports = function (req, res, next) {
                     var transporter = nodemailer.createTransport(sblue({
                         apiKey: process.env.SBLUE_APIKEY,
                         apiUrl: process.env.SBLUE_DOMAIN
+                    }));
+                } else if(process.env.MAIL_PROVIDER == 'MAILGUN'){
+                    var transporter = nodemailer.createTransport(mg({
+                        service:  'Mailgun',
+                        auth: {
+                            api_key: process.env.MAILGUN_APIKEY,
+                            domain: process.env.MAILGUN_DOMAIN
+                        },
+                        proxy: process.env.PROXY
                     }));
                 } else {
                     var transporter = nodemailer.createTransport({
@@ -763,6 +833,15 @@ exports = module.exports = function (req, res, next) {
                                 apiUrl: process.env.SBLUE_DOMAIN,
                                 proxy: process.env.PROXY
                             }));
+                        } else if(process.env.MAIL_PROVIDER == 'MAILGUN'){
+                            var transporter = nodemailer.createTransport(mg({
+                                service:  'Mailgun',
+                                auth: {
+                                    api_key: process.env.MAILGUN_APIKEY,
+                                    domain: process.env.MAILGUN_DOMAIN
+                                },
+                                proxy: process.env.PROXY
+                            }));
                         } else {
                             var transporter = nodemailer.createTransport({
                                 host: process.env.GMAIL_HOST,
@@ -877,7 +956,7 @@ exports = module.exports = function (req, res, next) {
                                 apiKey: process.env.SBLUE_APIKEY,
                                 apiUrl: process.env.SBLUE_DOMAIN
                             }));
-                        } /*else if(process.env.MAIL_PROVIDER == 'MAILGUN'){
+                        } else if(process.env.MAIL_PROVIDER == 'MAILGUN'){
                             var transporter = nodemailer.createTransport(mg({
                                 service:  'Mailgun',
                                 auth: {
@@ -886,7 +965,7 @@ exports = module.exports = function (req, res, next) {
                                 },
                                 proxy: process.env.PROXY
                             }));
-                        }*/ else {
+                        } else {
                             var transporter = nodemailer.createTransport({
                                 host: process.env.GMAIL_HOST,
                                 port: process.env.GMAIL_PORT,
@@ -1156,6 +1235,15 @@ exports = module.exports = function (req, res, next) {
             var transporter = nodemailer.createTransport(sblue({
                 apiKey: process.env.SBLUE_APIKEY,
                 apiUrl: process.env.SBLUE_DOMAIN
+            }));
+        } else if(process.env.MAIL_PROVIDER == 'MAILGUN'){
+            var transporter = nodemailer.createTransport(mg({
+                service:  'Mailgun',
+                auth: {
+                    api_key: process.env.MAILGUN_APIKEY,
+                    domain: process.env.MAILGUN_DOMAIN
+                },
+                proxy: process.env.PROXY
             }));
         } else {
             var transporter = nodemailer.createTransport({
@@ -3028,6 +3116,15 @@ exports = module.exports = function (req, res, next) {
                                 apiKey: process.env.SBLUE_APIKEY,
                                 apiUrl: process.env.SBLUE_DOMAIN
                             }));
+                        } else if(process.env.MAIL_PROVIDER == 'MAILGUN'){
+                            var transporter = nodemailer.createTransport(mg({
+                                service:  'Mailgun',
+                                auth: {
+                                    api_key: process.env.MAILGUN_APIKEY,
+                                    domain: process.env.MAILGUN_DOMAIN
+                                },
+                                proxy: process.env.PROXY
+                            }));
                         } else {
                             var transporter = nodemailer.createTransport({
                                 host: process.env.GMAIL_HOST,
@@ -3381,6 +3478,15 @@ exports = module.exports = function (req, res, next) {
                                             var transporter = nodemailer.createTransport(sblue({
                                                 apiKey: process.env.SBLUE_APIKEY,
                                                 apiUrl: process.env.SBLUE_DOMAIN
+                                            }));
+                                        } else if(process.env.MAIL_PROVIDER == 'MAILGUN'){
+                                            var transporter = nodemailer.createTransport(mg({
+                                                service:  'Mailgun',
+                                                auth: {
+                                                    api_key: process.env.MAILGUN_APIKEY,
+                                                    domain: process.env.MAILGUN_DOMAIN
+                                                },
+                                                proxy: process.env.PROXY
                                             }));
                                         } else {
                                             var transporter = nodemailer.createTransport({
@@ -3863,7 +3969,7 @@ exports = module.exports = function (req, res, next) {
     /** GET USER TRANSACTIONS **/
     if(action == "get_user_transactions"){
         var shopper_id = req.body.logged_user_id;
-        var condition = {shopper_id: ObjectId(shopper_id),status:"processed"};
+        var condition = {shopper_id: ObjectId(shopper_id), status:"completed"};
 
         dbo.collection("transaction").find(condition, {"sort": ['_id', 'desc']}).skip(0).limit(5).toArray(function (err, result) {
             var send_contents = '';
@@ -3885,180 +3991,5 @@ exports = module.exports = function (req, res, next) {
             }
             res.send({content: send_contents});
         });
-    }
-	if(action == "custom_check"){
-		var coinbase_oauth_client_id = '';
-        var coinbase_oauth_client_secret = '';
-        var coinbase_api_url = '';
-        
-        var coinbase_access_token = '';
-        var coinbase_refresh_token = '';
-        var coinbase_account_id = '';
-		
-		var transaction_currency = 'BTC';// (BTC or ETH or ..)
-		var shopper_id = '5dc1a93697ac771845af564c';
-		
-		var request = require('request');
-		
-        async.waterfall([
-			function(next) {
-				// Get Client ID Client Secret & API URL
-				dbo.collection("site_settings").find({}).toArray(function (err, result) {
-					if (err){
-						return res.send({msg:"error",txt:'Error in processing.  Try again later'});
-					} else {
-						if(typeof result != "undefined" && result != null){
-							resulteach = result[0];
-							coinbase_oauth_client_id  = resulteach.coinbase_oauth_client_id;
-							coinbase_oauth_client_secret  = resulteach.coinbase_oauth_client_secret;
-							coinbase_api_url = resulteach.coinbase_api_url;
-							next(null);
-						} else {
-							return res.send({msg:"error",txt:'Error in processing.  Try again later'});
-						}
-					}
-				});
-			},function(next) {
-				// Get Users Access Token and Refresh Token and Coinbase Account ID
-				dbo.collection("users").findOne({"_id": new ObjectId(shopper_id)}, function (err, result) {
-					if (typeof result != 'undefined' && result != null && result != "" && (err == null || err == "")) {
-						coinbase_access_token  = result.coinbase_access_token;
-						coinbase_refresh_token  = result.coinbase_refresh_token;
-						next(null);
-					} else {
-						return res.send({msg:"error",txt:'Error in processing.  Try again later'});
-					}
-				});
-			},function(next) {
-				// Get All Accounts for fetching apt account for sending.
-				var Client = require('coinbase').Client;
-				var client = new Client({'accessToken': coinbase_access_token, 'refreshToken': coinbase_refresh_token,proxy: process.env.PROXY,strictSSL: false});
-
-				client.getAccounts({limit: 50}, function(err, accounts, pagination) {
-					//console.log(pagination);
-					if(err != null){
-						//console.log(err.statusCode);
-						//console.log(err.message);
-						if(err.statusCode == "401"){
-							console.log("INSIDE Access Token Renew Process");
-							// Access Token Renew Process
-							var auth_req = {
-								"grant_type": "refresh_token",
-								"refresh_token": coinbase_refresh_token,
-								"client_id": coinbase_oauth_client_id,
-								"client_secret": coinbase_oauth_client_secret
-							};
-							request.post({
-								headers: {'content-type' : 'application/json'},
-								url: coinbase_api_url+"/oauth/token",
-								body: JSON.stringify(auth_req)
-							},function(error, response, body){
-								if (error){
-									return res.send({msg:"error",txt:'Error in processing.  Try again later'});
-								} else {
-									var body = JSON.parse(body);
-									if(typeof body != "undefined" && body != null && typeof body.access_token != "undefined" && body.access_token != null && body.access_token != ''){
-										coinbase_access_token = body.access_token;
-										coinbase_refresh_token = body.refresh_token;                                        
-										dbo.collection("users").updateOne({"_id": new ObjectId(shopper_id)}, {$set: {"coinbase_access_token": body.access_token,"coinbase_refresh_token": body.refresh_token}}, function (err, resultupdate) {
-
-											client = new Client({'accessToken': coinbase_access_token, 'refreshToken': coinbase_refresh_token,proxy: process.env.PROXY, strictSSL: false});
-											client.getAccounts({limit: 50}, function(err, accounts, pagination) {
-												//console.log(pagination);
-												all_account_obj = accounts;
-												next(null);
-											});
-
-										});
-									} else {
-										return res.send({msg:"error",txt:'Error in processing.  Try again later'});
-									}
-								}
-							});
-						} else {
-							return res.send({msg:"error",txt:'Error in processing.  Try again later'});
-						}
-					} else {
-						all_account_obj = accounts;
-						next(null);
-					}
-				});
-			}, function(next) {
-				/** GET SUITABLE WALLET ACCOUNT ID BY CURRENCY CODE **/
-				if(all_account_obj != null && all_account_obj != ''){
-					//console.log(all_account_obj);
-					all_account_obj.forEach(function(acct) {
-						if(acct.currency.code == transaction_currency){
-							coinbase_account_id = acct.id;
-						}
-					});
-					if(coinbase_account_id != ''){
-						console.log("COINBASE ACCOUNT ID FOR "+transaction_currency+" is "+coinbase_account_id);
-						next(null);
-					} else {
-						console.log("NO SUITABLE WALLET ACCOUNT FOUND FOR COIN TYPE");
-						return res.send({msg:"error",txt:'Error in processing.  Try again later'});
-					}
-				} else {
-					return res.send({msg:"error",txt:'Error in processing.  Try again later'});
-				}
-			}, function(next) {
-				// Get Account Object by Account ID for Sending Money.
-				var Client = require('coinbase').Client;
-				var client = new Client({'accessToken': coinbase_access_token, 'refreshToken': coinbase_refresh_token,proxy: process.env.PROXY,strictSSL: false});
-
-				client.getAccount(coinbase_account_id, function(err, account) {
-					if(err != null){
-						console.log(err.statusCode);
-						console.log(err.message);
-						if(err.statusCode == "401"){
-							console.log("INSIDE Access Token Renew Process");
-							// Access Token Renew Process
-							var auth_req = {
-								"grant_type": "refresh_token",
-								"refresh_token": coinbase_refresh_token,
-								"client_id": coinbase_oauth_client_id,
-								"client_secret": coinbase_oauth_client_secret
-							};
-							request.post({
-								headers: {'content-type' : 'application/json'},
-								url: coinbase_api_url+"/oauth/token",
-								body: JSON.stringify(auth_req)
-							},function(error, response, body){
-								if (error){
-									return res.send({msg:"error",txt:'Error in processing.  Try again later'});
-								} else {
-									var body = JSON.parse(body);
-									if(typeof body != "undefined" && body != null && typeof body.access_token != "undefined" && body.access_token != null && body.access_token != ''){
-										coinbase_access_token = body.access_token;
-										coinbase_refresh_token = body.refresh_token;                                        
-										dbo.collection("users").updateOne({"_id": new ObjectId(shopper_id)}, {$set: {"coinbase_access_token": body.access_token,"coinbase_refresh_token": body.refresh_token}}, function (err, resultupdate) {
-
-											client = new Client({'accessToken': coinbase_access_token, 'refreshToken': coinbase_refresh_token,proxy: process.env.PROXY, strictSSL: false});
-											client.getAccount(coinbase_account_id, function(err, account) {
-												account_obj = account;
-												next(null);
-											});
-
-										});
-									} else {
-										return res.send({msg:"error",txt:'Error in processing.  Try again later'});
-									}
-								}
-							});
-						} else {
-							return res.send({msg:"error",txt:'Error in processing.  Try again later'});
-						}
-					} else {
-						account_obj = account;
-						next(null);
-					}
-				});
-			},function(next) {
-				console.log("ACCOUNT OBJECT OF THE PAYER");
-				console.log(account_obj);
-				return res.send({msg:"error",txt:"This transaction has been canceled. There have been no charges. In order to make a purchase, click \"Pay Now!\" again."});
-			}
-		]);
     }
 }

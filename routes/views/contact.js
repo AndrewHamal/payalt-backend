@@ -18,7 +18,7 @@ exports = module.exports = function (req, res) {
                 apiKey: process.env.SBLUE_APIKEY,
                 apiUrl: process.env.SBLUE_DOMAIN
             }));
-        } /*else if(process.env.MAIL_PROVIDER == 'MAILGUN'){
+        } else if(process.env.MAIL_PROVIDER == 'MAILGUN'){
             var transporter = nodemailer.createTransport(mg({
                 service:  'Mailgun',
                 auth: {
@@ -27,7 +27,7 @@ exports = module.exports = function (req, res) {
                 },
                 proxy: process.env.PROXY
             }));
-        }*/ else {
+        } else {
             var transporter = nodemailer.createTransport({
                 host: process.env.GMAIL_HOST,
                 port: process.env.GMAIL_PORT,
