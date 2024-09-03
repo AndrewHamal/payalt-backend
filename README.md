@@ -1,5 +1,5 @@
 # payalt
-Electron app for Bitcoin Purchase on Ecommerce store
+App for Bitcoin Purchase on Ecommerce store
 
 #npm install
 Install npm modules
